@@ -33,7 +33,7 @@ def generate_and_save(file_name, size):
             writer.writerow(case)
 
 percentages = [0.25, 0.50, 0.75, 1.0]
-max_records = 10000  # Cambia questo valore in base al numero totale di record desiderato
+max_records = 1000  # Cambia questo valore in base al numero totale di record desiderato
 
 for size in percentages:
     print(size)
