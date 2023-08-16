@@ -1,19 +1,34 @@
 import csv
 from pymongo import MongoClient
-
+import os
 
 client = MongoClient('mongodb://localhost:27017')
-db = client['Fraud']
+
+sizes = [25, 50, 75, 100]
+entities = ["clients", "fraud_alerts", "merchants", "suspicious_transactions", "transaction"]
 
 
-def insert_into_mongo(csv_file, collection_name):
-    collection = db[collection_name]
-    with open(csv_file, 'r', newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-        data_to_insert = [row for row in reader]
-        collection.insert_many(data_to_insert)
+for size in sizes:
+    
+    folder_name = f"db{size}"
 
-insert_into_mongo('dataset_25_percent.csv', 'Fraudinfo25')
-insert_into_mongo('dataset_50_percent.csv', 'Fraudinfo50')
-insert_into_mongo('dataset_75_percent.csv', 'Fraudinfo75')
-insert_into_mongo('dataset_100_percent.csv', 'Fraudinfo100')
+    for entity in entities:
+        
+        db_name = f"Fraud{size}"
+        
+        file_name = f"{entity}_{size}.csv"
+
+        csv_path = os.path.join(folder_name, file_name)
+        print(csv_path)
+
+        mongo_db = client[db_name]
+
+        collection = mongo_db[entity + "_" + str(size)]
+        
+        with open(csv_path, 'r', encoding='utf-8') as csvfile:
+            csv_reader = csv.DictReader(csvfile)
+            for row in csv_reader:
+                collection.insert_one(row)
+
+
+
