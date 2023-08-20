@@ -2,67 +2,61 @@ from pymongo import MongoClient
 import time
 import csv
 
-# Definizione delle dimensioni del database
 sizes = [0.25, 0.50, 0.75, 1.00]
 
-# Definizione delle query crescenti in complessità
 queries = [
-    {"Client Name": "John Doe"},
-    {"Transaction Date": {"$gte": "2023-01-01"}},
-    {"Amount": {"$gte": 100}},
-    {"Amount": {"$gte": 100}, "Merchant Name": "XYZ Inc"}
+    {"collection": "clients", "pipeline": [{"$match": {"Client Name": "Timothy Garcia"}}]},
+    {"collection": "transactions", "pipeline": [{"$match": {"Transaction Date": {"$gte": "2023-01-01"}}}]},
+    {"collection": "merchants", "pipeline": [{"$match": {"Category": "Retail"}}]},
+    {"collection": "suspicious_transactions", "pipeline": [{"$match": {"Amount": {"$gte": 200}}}]},
 ]
-
-# Dizionario per memorizzare i tempi di esecuzione
-execution_times = {}
 
 client = MongoClient('mongodb://localhost:27017')
 
+execution_times = []
 
-# Ciclo attraverso le dimensioni
 for size in sizes:
     print(f"Dimension: {int(size * 100)}%")
     
-    # Creazione di una sotto-lista per ogni dimensione
-    execution_times[int(size * 100)] = []
+    db_name = f"Fraud{int(size * 100)}"
+    db = client[db_name]
     
-    # Ciclo attraverso le query
-    for query_idx, query in enumerate(queries):
+    for query_idx, query_data in enumerate(queries):
+        collection_name = query_data.get("collection", None)
+        collection_name = collection_name + "_" + str(int(size * 100))
+        
+        pipeline = query_data.get("pipeline", None)
+        first_execution_time = None
         avg_execution_time = 0
-        
-        # Seleziona il database
-        db_name = f"Fraud{int(size * 100)}"
-        db = client[db_name]
-        
-        # Esegui la query e misura il tempo di esecuzione
-        for _ in range(3):  # Esegui ogni query 3 volte per ottenere una media
+
+        for _ in range(30):
             start_time = time.time()
             
-            # Esegui la query
-            result = db.collection.find(query)
+            result = list(db[collection_name].aggregate(pipeline))
             
             end_time = time.time()
-            execution_time = (end_time - start_time) * 1000  # Converti in millisecondi
+            execution_time = (end_time - start_time) * 1000
             avg_execution_time += execution_time
+            
+            if first_execution_time is None:
+                first_execution_time = execution_time
         
-        avg_execution_time /= 3  # Calcola la media dei tempi di esecuzione
-        execution_times[int(size * 100)].append(avg_execution_time)
-    
+        avg_execution_time /= 30
+        
+        execution_times.append({
+            "Query": f"Query {query_idx + 1}",
+            "Dimensione": f'{int(size * 100)}%',
+            "Tempo di esecuzione medio (ms)": avg_execution_time,
+            "Tempo della prima esecuzione (ms)": first_execution_time
+        })
+
     print("-" * 40)
 
-# Creazione dei grafici
-query_labels = [f"Query {i+1}" for i in range(len(queries))]
-colors = ['b', 'g', 'r', 'c']  # Lista di colori predefiniti
-
 csv_file = 'execution_times_mongo.csv'
-
 with open(csv_file, 'w', newline='', encoding='utf-8') as csvfile:
-    fieldnames = ['Query', 'Size', 'Execution Time (ms)']
+    fieldnames = ['Query', 'Dimensione', 'Tempo di esecuzione medio (ms)', 'Tempo della prima esecuzione (ms)']
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
     writer.writeheader()
-    
-    for query_idx, query_label in enumerate(query_labels):
-        for size_idx, size in enumerate(sizes):
-            execution_time = execution_times[int(size * 100)][query_idx]
-            writer.writerow({'Query': query_label, 'Size': f'{int(size * 100)}%', 'Execution Time (ms)': execution_time})
-            
+
+    for data in execution_times:
+        writer.writerow(data)
