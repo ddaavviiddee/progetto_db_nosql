@@ -5,7 +5,7 @@ import os
 client = MongoClient('mongodb://localhost:27017')
 
 sizes = [25, 50, 75, 100]
-entities = ["clients", "fraud_alerts", "merchants", "suspicious_transactions", "transaction"]
+entities = ["clients", "fraud_alerts", "merchants", "suspicious_transactions", "transactions"]
 
 
 for size in sizes:
