@@ -118,7 +118,7 @@ db_sizes = [0.25, 0.50, 0.75, 1.00]
 
 for entity_name, data in entities.items():
     for size in db_sizes:
-        
+        # sistemare questa parte
         max_records_per_entity = int(size * max_records)
         num_records = int(max_records_per_entity / sum(entity_proportions.values()) * entity_proportions[entity_name])
         print(f"Generating {num_records} records for {entity_name} with max_records_per_entity: {max_records_per_entity}")
