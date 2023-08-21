@@ -5,11 +5,124 @@ import csv
 sizes = [0.25, 0.50, 0.75, 1.00]
 
 queries = [
-    {"collection": "clients", "pipeline": [{"$match": {"Client Name": "Timothy Garcia"}}]},
-    {"collection": "transactions", "pipeline": [{"$match": {"Transaction Date": {"$gte": "2023-01-01"}}}]},
-    {"collection": "merchants", "pipeline": [{"$match": {"Category": "Retail"}}]},
-    {"collection": "suspicious_transactions", "pipeline": [{"$match": {"Amount": {"$gte": 200}}}]},
+    {
+        "steps": [
+            {
+                "collection": "clients",
+                "pipeline": [
+                    {"$match": {"Client Name": "Stephen Cortez"}}
+                ]
+            }
+        ]
+    },
+    {
+        "steps": [
+            {
+                "collection": "clients",
+                "pipeline": [
+                    {"$match": {"Client Name": "Stephen Cortez"}}
+                ]
+            },
+            {
+                "collection": "transactions",
+                "pipeline": [
+                    {
+                        "$lookup": {
+                            "from": "clients",
+                            "localField": "Client ID",
+                            "foreignField": "Client ID",
+                            "as": "client"
+                        }
+                    },
+                    {
+                        "$unwind": "$client"
+                    },
+                    {
+                        "$match": {"client.Client Name": "Stephen Cortez"}
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "steps": [
+            {
+                "collection": "clients",
+                "pipeline": [
+                    {"$match": {"Client Name": "Stephen Cortez"}}
+                ]
+            },
+            {
+                "collection": "transactions",
+                "pipeline": [
+                    {
+                        "$lookup": {
+                            "from": "clients",
+                            "localField": "Client ID",
+                            "foreignField": "Client ID",
+                            "as": "client"
+                        }
+                    },
+                    {
+                        "$unwind": "$client"
+                    },
+                    {
+                        "$match": {"client.Client Name": "Stephen Cortez"}
+                    }
+                ]
+            },
+            {
+                "collection": "suspicious_transactions",
+                "pipeline": [
+                    {"$match": {"Client ID": "$$client.Client ID"}}
+                ]
+            }
+        ]
+    },
+    {
+        "steps": [
+            {
+                "collection": "clients",
+                "pipeline": [
+                    {"$match": {"Client Name": "Stephen Cortez"}}
+                ]
+            },
+            {
+                "collection": "transactions",
+                "pipeline": [
+                    {
+                        "$lookup": {
+                            "from": "clients",
+                            "localField": "Client ID",
+                            "foreignField": "Client ID",
+                            "as": "client"
+                        }
+                    },
+                    {
+                        "$unwind": "$client"
+                    },
+                    {
+                        "$match": {"client.Client Name": "Stephen Cortez"}
+                    }
+                ]
+            },
+            {
+                "collection": "suspicious_transactions",
+                "pipeline": [
+                    {"$match": {"Client ID": "$$client.Client ID"}}
+                ]
+            },
+            {
+                "collection": "fraud_alerts",
+                "pipeline": [
+                    {"$match": {"Suspicious Transaction ID": "$$CURRENT.Transaction ID"}}
+                ]
+            }
+        ]
+    }
 ]
+
+
 
 client = MongoClient('mongodb://localhost:27017')
 
@@ -22,17 +135,21 @@ for size in sizes:
     db = client[db_name]
     
     for query_idx, query_data in enumerate(queries):
-        collection_name = query_data.get("collection", None)
-        collection_name = collection_name + "_" + str(int(size * 100))
+        steps = query_data.get("steps", [])
+        print(f"Query {query_idx + 1} - Steps: {len(steps)}")
         
-        pipeline = query_data.get("pipeline", None)
         first_execution_time = None
         avg_execution_time = 0
-
+        
         for _ in range(30):
             start_time = time.time()
             
-            result = list(db[collection_name].aggregate(pipeline))
+            for step in steps:
+                collection_name = step.get("collection", None)
+                collection_name = collection_name + "_" + str(int(size * 100))
+                pipeline = step.get("pipeline", None)
+                
+                result = list(db[collection_name].aggregate(pipeline))
             
             end_time = time.time()
             execution_time = (end_time - start_time) * 1000
@@ -42,6 +159,7 @@ for size in sizes:
                 first_execution_time = execution_time
         
         avg_execution_time /= 30
+        print(result)
         
         execution_times.append({
             "Query": f"Query {query_idx + 1}",
@@ -60,3 +178,8 @@ with open(csv_file, 'w', newline='', encoding='utf-8') as csvfile:
 
     for data in execution_times:
         writer.writerow(data)
+
+
+
+
+
