@@ -91,7 +91,7 @@ def clear_csv(file_name):
 
 
 db_sizes = [0.25, 0.50, 0.75, 1.00]
-max_records = 1000
+max_records = 2000
 clients = generate_clients(max_records)
 merchants = generate_merchants(max_records)
 transactions = generate_transactions(max_records, clients, merchants)
@@ -110,7 +110,7 @@ entity_proportions = {
     "clients": 2,
     "merchants": 1,
     "transactions": 4,
-    "suspicious_transactions": 1,
+    "suspicious_transactions": 2,
     "fraud_alerts": 1
 }
 
@@ -118,10 +118,12 @@ db_sizes = [0.25, 0.50, 0.75, 1.00]
 
 for entity_name, data in entities.items():
     for size in db_sizes:
+        
         max_records_per_entity = int(size * max_records)
-        num_records = int(max_records_per_entity / entity_proportions[entity_name])
+        num_records = int(max_records_per_entity / sum(entity_proportions.values()) * entity_proportions[entity_name])
+        print(f"Generating {num_records} records for {entity_name} with max_records_per_entity: {max_records_per_entity}")
 
-        data_subset = data[:num_records]  # Prendi una sottoinsieme dei dati
+        data_subset = data[:num_records]  # Prendi un sottoinsieme dei dati
 
         db_folder = f"db_{int(size * 100)}"
         os.makedirs(db_folder, exist_ok=True)
@@ -129,5 +131,5 @@ for entity_name, data in entities.items():
         file_name = f"{entity_name}_{int(size * 100)}.csv"
         file_path = os.path.join(db_folder, file_name)
         
-        generate_csv(data_subset, file_path)
+       # generate_csv(data_subset, file_path)
         print(f"Generated records for {entity_name} in {file_path}")
