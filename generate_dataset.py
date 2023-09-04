@@ -91,7 +91,7 @@ def clear_csv(file_name):
 
 
 db_sizes = [0.25, 0.50, 0.75, 1.00]
-max_records = 10000
+max_records = 30000
 
 entity_proportions = {
     "clients": 2,

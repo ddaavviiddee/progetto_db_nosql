@@ -1,0 +1,32 @@
+CREATE (c:clients {
+  `Client ID`: "f1341b64-726b-4cf6-800e-9e23c6be2778",
+  `Client Name`: "John Olson",
+  `Phone Number`: "(611)996-6785x35781",
+  `Address`: "89138 Scott River Suite 493\nMyersberg, DE 22367",
+  `Email`: "megan15@example.net"
+})
+
+CREATE (:merchants {
+  `Merchant Name`: "Sparks and Sons",
+  `Category`: "Restaurant",
+  `Location`: "Jimmyfurt"
+})
+
+CREATE (:transactions {
+  `Transaction ID`: "5770d01e-0c64-48f2-b174-51957ac20a8d",
+  `Transaction Date`: "2023-02-09 07:31:42",
+  `Amount`: "240.170838007386",
+  `Description`: "Have good already safe."
+})-[:MADE_BY]->(:clients {`Client ID`: "f1341b64-726b-4cf6-800e-9e23c6be2778"})-[:MADE_BY]->(:merchants {`Merchant Name`: "Sparks and Sons"})
+
+CREATE (:suspicious_transactions {
+  `Suspicious Transaction ID`: "5a4b88ec-b923-4e44-a897-7960401a5ddd",
+  `Reason`: "Information citizen television one across Congress."
+})-[:IS_SUSPICIOUS]->(:transactions {`Transaction ID`: "5770d01e-0c64-48f2-b174-51957ac20a8d"})-[:MADE_BY]->(:clients {`Client ID`: "f1341b64-726b-4cf6-800e-9e23c6be2778"})
+
+CREATE (:fraud_alerts {
+  `FraudAlert ID`: "50641e89-5b6b-4ed7-889d-7844d5f74c4c",
+  `Alert Date`: "2023-06-03 04:51:50",
+  `Alert Type`: "Suspicious Activity",
+  `Alert Description`: "In near hot girl sign grow investment."
+})-[:FRAUD]->(:suspicious_transactions {`Suspicious Transaction ID`: "5a4b88ec-b923-4e44-a897-7960401a5ddd"})

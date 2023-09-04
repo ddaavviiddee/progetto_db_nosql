@@ -22,7 +22,7 @@ for size in sizes:
 
         mongo_db = client[db_name]
 
-        collection = mongo_db[entity + "_" + str(size)]
+        collection = mongo_db[entity]
         collection.delete_many({})
         
         with open(csv_path, 'r', encoding='utf-8') as csvfile:

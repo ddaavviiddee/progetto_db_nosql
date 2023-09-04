@@ -1,7 +1,6 @@
 from py2neo import Graph, Node, Relationship
 import csv
 import os
-import time
 
 # Lista di dimensioni
 sizes = [25, 50, 75, 100]
@@ -26,7 +25,7 @@ for size in sizes:
             csv_reader = csv.DictReader(csvfile)
 
             for row in csv_reader:
-                node = Node(entity+ f"_{size}", **row)
+                node = Node(entity, **row)
                 graph.create(node)
 
     print(f"Nodes loaded for database {db_name}")
@@ -34,14 +33,14 @@ for size in sizes:
     # Creazione delle relazioni tra le entità
     if "transactions" in entities:
         print("Creating transaction relationships")
-        transactions = graph.nodes.match(f"transactions_{size}")
+        transactions = graph.nodes.match(f"transactions")
 
         for tx_node in transactions:
             client_id = tx_node["Client ID"]
             merchant_name = tx_node["Merchant Name"]
 
-            client_node = graph.nodes.match(f"clients_{size}", **{"Client ID": client_id}).first()
-            merchant_node = graph.nodes.match(f"merchants_{size}", **{"Merchant Name": merchant_name}).first()
+            client_node = graph.nodes.match(f"clients", **{"Client ID": client_id}).first()
+            merchant_node = graph.nodes.match(f"merchants", **{"Merchant Name": merchant_name}).first()
 
             if client_node is not None and merchant_node is not None:
                 rel_client = Relationship(tx_node, "MADE_BY", client_node)
@@ -53,12 +52,12 @@ for size in sizes:
 
     if "fraud_alerts" in entities:
         print("Creating fraud relationships")
-        fraud_alerts = graph.nodes.match(f"fraud_alerts_{size}")
+        fraud_alerts = graph.nodes.match(f"fraud_alerts")
 
         for alert_node in fraud_alerts:
             suspicious_transaction_id = alert_node["Suspicious Transaction ID"]
 
-            suspicious_transaction_node = graph.nodes.match(f"suspicious_transactions_{size}", **{"Suspicious Transaction ID": suspicious_transaction_id}).first()
+            suspicious_transaction_node = graph.nodes.match(f"suspicious_transactions", **{"Suspicious Transaction ID": suspicious_transaction_id}).first()
 
             if suspicious_transaction_node is not None:
                 rel_fraud_alert = Relationship(alert_node, "FRAUD", suspicious_transaction_node)
@@ -68,12 +67,12 @@ for size in sizes:
 
     if "suspicious_transactions" in entities:
         print("Creating suspicious relationships")
-        suspicious_transactions = graph.nodes.match(f"suspicious_transactions_{size}")
+        suspicious_transactions = graph.nodes.match(f"suspicious_transactions")
 
         for suspicious_tx_node in suspicious_transactions:
             transaction_id = suspicious_tx_node["Transaction ID"]
 
-            transaction_node = graph.nodes.match(f"transactions_{size}", **{"Transaction ID": transaction_id}).first()
+            transaction_node = graph.nodes.match(f"transactions", **{"Transaction ID": transaction_id}).first()
 
             if transaction_node is not None:
                 rel_suspicious_tx = Relationship(suspicious_tx_node, "IS_SUSPICIOUS", transaction_node)
@@ -83,6 +82,4 @@ for size in sizes:
 
 print("Relationship creation completed.")
 
-'''MATCH (f:fraud_alerts_25)-[:FRAUD]->(s:suspicious_transactions_25)-[:IS_SUSPICIOUS]->(t:transactions_25)-[:MADE_BY]->(c:clients_25)
-WHERE f.`Suspicious Transaction ID` = s.`Suspicious Transaction ID` AND s.`Transaction ID` = t.`Transaction ID` AND t.`Client ID` = c.`Client ID`
-RETURN c''' # questa query potrebbe essere interessante
+
