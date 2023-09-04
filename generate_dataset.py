@@ -41,12 +41,12 @@ def generate_transactions(num_records, clients, merchants):
 def generate_suspicious_transactions(num_records, clients, transactions):
     suspicious_transactions = []
     for _ in range(num_records):
-        client = random.choice(clients)
+        
         transaction = random.choice(transactions)
         
         suspicious_transaction = {
             "Suspicious Transaction ID": str(uuid.uuid4()),
-            "Client ID": client["Client ID"],
+            "Client ID": transaction["Client ID"],
             "Transaction ID": transaction["Transaction ID"],
             "Transaction Date": fake.date_time_this_year(),
             "Amount": transaction["Amount"],

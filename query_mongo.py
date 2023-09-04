@@ -14,17 +14,29 @@ queries = [
     "collection": "clients",
     "pipeline": [
         {
-            "$group": {
-                "_id": "null",
-                "Client Count": {
-                    "$sum": 1
-                }
+            "$match": {
+                "Client Name": "Teresa Padilla"
+            }
+        }
+    ]
+    },
+    {
+    "collection": "transactions",
+    "pipeline": [
+        {
+            "$lookup": {
+                "from": "clients",
+                "localField": "Client ID",
+                "foreignField": "Client ID",
+                "as": "client"
             }
         },
         {
-            "$project": {
-                "_id": 0,
-                "Client Count": 1
+            "$unwind": "$client"
+        },
+        {
+            "$match": {
+                "client.Client Name": "Teresa Padilla"
             }
         }
     ]
@@ -34,65 +46,55 @@ queries = [
     "pipeline": [
         {
             "$match": {
-                "Client Name": "John Olson"
+                "Client Name": "Teresa Padilla"
+            }
+        },
+        {
+            "$lookup": {
+                "from": "transactions",
+                "localField": "Client ID",
+                "foreignField": "Client ID",
+                "as": "client_transactions"
+            }
+        },
+        {
+            "$lookup": {
+                "from": "suspicious_transactions",
+                "localField": "Client ID",
+                "foreignField": "Client ID",
+                "as": "suspicious_transactions"
             }
         }
     ]
     },
     {
-    "collection": "suspicious_transactions",
+    "collection": "clients",
     "pipeline": [
+        {
+            "$match": {
+                "Client Name": "Teresa Padilla"
+            }
+        },
         {
             "$lookup": {
                 "from": "transactions",
-                "localField": "Suspicious Transaction ID",
-                "foreignField": "Transaction ID",
-                "as": "suspicious_transactions"
-            }
-        },
-        {
-            "$lookup": {
-                "from": "clients",
                 "localField": "Client ID",
                 "foreignField": "Client ID",
-                "as": "clients"
-            }
-        },
-        {
-            "$match": {
-                "clients.Client Name": "John Olson"
-            }
-        }
-    ]
-    },
-    {
-    "collection": "suspicious_transactions",
-    "pipeline": [
-        {
-            "$lookup": {
-                "from": "transactions",
-                "localField": "Suspicious Transaction ID",
-                "foreignField": "Transaction ID",
-                "as": "suspicious_transactions"
+                "as": "client_transactions"
             }
         },
         {
             "$lookup": {
-                "from": "clients",
+                "from": "suspicious_transactions",
                 "localField": "Client ID",
                 "foreignField": "Client ID",
-                "as": "clients"
-            }
-        },
-        {
-            "$match": {
-                "clients.Client Name": "John Olson"
+                "as": "suspicious_transactions"
             }
         },
         {
             "$lookup": {
                 "from": "fraud_alerts",
-                "localField": "Suspicious Transaction ID",
+                "localField": "suspicious_transactions.Suspicious Transaction ID",
                 "foreignField": "Suspicious Transaction ID",
                 "as": "fraud_alerts"
             }
@@ -103,7 +105,7 @@ queries = [
             }
         }
     ]
-    }
+}
 
 ]
 
