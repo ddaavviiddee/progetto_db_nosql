@@ -1,39 +1,67 @@
-CREATE (c:clients {
-  `Client ID`: "f1341b64-726b-4cf6-800e-9e23c6be2778",
-  `Client Name`: "John Olson",
-  `Phone Number`: "(611)996-6785x35781",
-  `Address`: "89138 Scott River Suite 493\nMyersberg, DE 22367",
-  `Email`: "megan15@example.net"
+CREATE (:clients {
+  `Client ID`: "287bfa69-1114-46a2-9703-4986c90d4224",
+  `Client Name`: "Teresa Padilla",
+  `Phone number`: "001-454-630-5154",
+  `Address`: "57691 Terry Corner\nRobintown, PW 94022",
+  `Email`: "jproctor@example.net"
+})
+
+CREATE (:fraud_alerts {
+  `Fraud Alert ID`: "b3e54d86-67a6-48e3-bf25-462a4e0da353",
+  `Suspicious Transaction ID`: "fe8a84ec-1610-4aaf-be8b-d8869a2ad022",
+  `Alert Date`: "2023-05-15 13:00:28",
+  `Alert Type`: "Suspicious Activity",
+  `Alert Description`: "Record too read factor boy imagine."
 })
 
 CREATE (:merchants {
-  `Merchant Name`: "Sparks and Sons",
-  `Category`: "Restaurant",
-  `Location`: "Jimmyfurt"
+  `Merchant Name`: "Davis and Sons",
+  `Category`: "Entertainment",
+  `Location`: "South Danielport"
 })
 
 CREATE (:transactions {
-  `Transaction ID`: "5770d01e-0c64-48f2-b174-51957ac20a8d",
-  `Client ID`: "2e1c099c-0187-4ebe-856e-f0c8415df47c",
-  `Merchant Name`: "Sparks and Sons",
-  `Transaction Date`: "2023-02-09 07:31:42",
-  `Amount`: "240.170838007386",
-  `Description`: "Have good already safe."
-})-[:MADE_BY]->(:clients {`Client ID`: "2e1c099c-0187-4ebe-856e-f0c8415df47c"})-[:MADE_BY]->(:merchants {`Merchant Name`: "Sparks and Sons"})
+  `Transaction ID`: "adbec780-1976-42ff-99ee-e52a47c91f27",
+  `Client ID`: "287bfa69-1114-46a2-9703-4986c90d4224",
+  `Merchant Name`: "Davis and Sons",
+  `Transaction Date`: "2023-03-02 02:57:19",
+  `Amount`: "284.5903848876167",
+  `Description`: "Account office front area."
+})
 
 CREATE (:suspicious_transactions {
-  `Suspicious Transaction ID`: "5a4b88ec-b923-4e44-a897-7960401a5ddd",
-  `Client ID`: "2e1c099c-0187-4ebe-856e-f0c8415df47c",
-  `Transaction ID`: "5770d01e-0c64-48f2-b174-51957ac20a8d",
-  `Transaction Date`: "2023-04-25 19:10:04",
-  `Amount`: "240.170838007386",
-  `Reason`: "Information citizen television one across Congress."
-})-[:IS_SUSPICIOUS]->(:transactions {`Transaction ID`: "5770d01e-0c64-48f2-b174-51957ac20a8d"})-[:MADE_BY]->(:clients {`Client ID`: "f1341b64-726b-4cf6-800e-9e23c6be2778"})
+  `Suspicious Transaction ID`: "fe8a84ec-1610-4aaf-be8b-d8869a2ad022",
+  `Client ID`: "287bfa69-1114-46a2-9703-4986c90d4224",
+  `Transaction ID`: "adbec780-1976-42ff-99ee-e52a47c91f27",
+  `Transaction Date`: "2023-07-30 12:20:16",
+  `Amount`: "284.5903848876167",
+  `Reason`: "Top add practice must despite."
+})
 
-CREATE (:fraud_alerts {
-  `Fraud Alert ID`: "50641e89-5b6b-4ed7-889d-7844d5f74c4c",
-  `Suspicious Transaction ID`: "5a4b88ec-b923-4e44-a897-7960401a5ddd",
-  `Alert Date`: "2023-06-03 04:51:50",
-  `Alert Type`: "Suspicious Activity",
-  `Alert Description`: "In near sign grow investment."
-})-[:FRAUD]->(:suspicious_transactions {`Suspicious Transaction ID`: "5a4b88ec-b923-4e44-a897-7960401a5ddd"})
+****************************************************************
+
+MATCH (t:transactions), (c:clients)
+WHERE t.`Client ID` = c.`Client ID`
+AND t.`Transaction ID` = "adbec780-1976-42ff-99ee-e52a47c91f27"
+WITH t, c  
+CREATE (t)-[:MADE_BY]->(c)
+
+MATCH (t:transactions), (m:merchants)
+WHERE t.`Merchant Name` = m.`Merchant Name`
+AND t.`Transaction ID` = "adbec780-1976-42ff-99ee-e52a47c91f27"  
+WITH t, m
+CREATE (t)-[:BOUGHT_FROM]->(m)
+
+MATCH (s:suspicious_transactions), (t:transactions)
+WHERE s.`Transaction ID` = t.`Transaction ID`
+AND s.`Suspicious Transaction ID` = "fe8a84ec-1610-4aaf-be8b-d8869a2ad022"  
+WITH s, t
+CREATE (s)-[:IS_SUSPICIOUS]->(t)
+
+MATCH (f:fraud_alerts), (s:suspicious_transactions)
+WHERE f.`Suspicious Transaction ID` = s.`Suspicious Transaction ID`
+AND f.`Fraud Alert ID` = "b3e54d86-67a6-48e3-bf25-462a4e0da353"  
+WITH f, s
+CREATE (f)-[:FRAUD]->(s)
+
+

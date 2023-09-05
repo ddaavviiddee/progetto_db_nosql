@@ -21,22 +21,19 @@ queries = [
     ]
     },
     {
-    "collection": "transactions",
+    "collection": "clients",
     "pipeline": [
         {
-            "$lookup": {
-                "from": "clients",
-                "localField": "Client ID",
-                "foreignField": "Client ID",
-                "as": "client"
+            "$match": {
+                "Client Name": "Teresa Padilla"
             }
         },
         {
-            "$unwind": "$client"
-        },
-        {
-            "$match": {
-                "client.Client Name": "Teresa Padilla"
+            "$lookup": {
+                "from": "transactions",
+                "localField": "Client ID",
+                "foreignField": "Client ID",
+                "as": "client_transactions"
             }
         }
     ]
@@ -116,6 +113,7 @@ client = MongoClient('mongodb://localhost:27017')
 execution_times_for_query = []
 
 for size in sizes:
+    
     print(f"Dimension: {int(size * 100)}%")
 
     db_name = f"Fraud{int(size * 100)}"

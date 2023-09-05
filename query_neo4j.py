@@ -11,39 +11,23 @@ confidence_intervals = []
 
 queries = [
     """
-    MATCH (c:clients)
-    WHERE c.`Client Name` = 'Teresa Padilla'
+    MATCH (c:clients {`Client Name`: "Teresa Padilla"})
     RETURN c
-    MATCH (c:clients)
-    RETURN count(c) AS ClientCount
     """,
     """
-    MATCH (c:clients)
-    WHERE c.`Client Name` = 'Teresa Padilla'
-    MATCH (t:transactions)-[:MADE_BY]->(c)
+    MATCH (c:clients {`Client Name`: "Teresa Padilla"})<-[:MADE_BY]-(t:transactions)
     RETURN t
-    MATCH (c:clients {`Client Name`: "John Olson"})
-    RETURN c
     """,
     """
-    MATCH (c:clients)
-    WHERE c.`Client Name` = 'Teresa Padilla'
-    MATCH (t:transactions)-[:MADE_BY]->(c)
-    MATCH (s:suspicious_transactions)-[:IS_SUSPICIOUS]->(t)
-    MATCH (c:clients {`Client Name`: "John Olson"})-[:MADE_BY]->(t:transactions)<-[:IS_SUSPICIOUS]-(s:suspicious_transactions)
+    MATCH (c:clients {`Client Name`: "Teresa Padilla"})<-[:MADE_BY]-(t:transactions)
+    MATCH (t)<-[:IS_SUSPICIOUS]-(s:suspicious_transactions)
     RETURN s
     """,
     """
-    MATCH (c:clients)
-    WHERE c.`Client Name` = 'Teresa Padilla'
-    MATCH (t:transactions)-[:MADE_BY]->(c)
-    MATCH (s:suspicious_transactions)-[:IS_SUSPICIOUS]->(t)
-    MATCH (f:fraud_alerts)-[:FRAUD]->(s)
+    MATCH (c:clients {`Client Name`: "Teresa Padilla"})<-[:MADE_BY]-(t:transactions)
+    MATCH (t)<-[:IS_SUSPICIOUS]-(s:suspicious_transactions)
+    MATCH (s)<-[:FRAUD]-(f:fraud_alerts)
     RETURN f
-    MATCH (c:clients {`Client Name`: "John Olson"})-[:MADE_BY]->(t:transactions)<-[:IS_SUSPICIOUS]-(s:suspicious_transactions)
-    WITH s
-    MATCH (s)-[:FRAUD]->(f:fraud_alerts)
-    RETURN s, f
     """
 ]
 
