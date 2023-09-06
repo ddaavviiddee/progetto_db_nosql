@@ -38,7 +38,7 @@ def generate_transactions(num_records, clients, merchants):
     return transactions
 
 # Genera dati delle transazioni sospette con relazioni ai clienti e transazioni
-def generate_suspicious_transactions(num_records, clients, transactions):
+def generate_suspicious_transactions(num_records,  transactions):
     suspicious_transactions = []
     for _ in range(num_records):
         
