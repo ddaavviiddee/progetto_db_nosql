@@ -146,7 +146,7 @@ for size in sizes:
         n = len(execution_times_for_query)
         mean_execution_time = np.mean(execution_times_for_query)
         std_deviation = np.std(execution_times_for_query, ddof=1)
-        margin_of_error = std_deviation / np.sqrt(n) * 1.96  # Utilizza 1.96 per il 95% di confidenza
+        margin_of_error = std_deviation / np.sqrt(n) * 1.96 
 
         lower_bound = mean_execution_time - margin_of_error
         upper_bound = mean_execution_time + margin_of_error
@@ -165,7 +165,7 @@ for size in sizes:
 
     print("-" * 40)
 
-# Scrivi gli intervalli di confidenza nel file CSV
+
 csv_file = 'execution_times_mongo.csv'
 with open(csv_file, 'w', newline='', encoding='utf-8') as csvfile:
     fieldnames = ['Query', 'Dimensione', 'Tempo della prima esecuzione (ms)', 'Tempo di esecuzione medio (ms)', 'Intervallo di confidenza inferiore (ms)', 'Intervallo di confidenza superiore (ms)']

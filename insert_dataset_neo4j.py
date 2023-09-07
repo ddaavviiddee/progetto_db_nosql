@@ -35,13 +35,13 @@ for size in sizes:
         print("Creating transaction relationships")
         transactions = graph.nodes.match(f"transactions")
 
-        for tx_node in transactions:
+        for tx_node in transactions:            # Preleva il singolo nodo
             client_id = tx_node["Client ID"]
             merchant_name = tx_node["Merchant Name"]
-
-            client_node = graph.nodes.match(f"clients", **{"Client ID": client_id}).first()
+            # Controlla se ci sono dei match fra i nodi
+            client_node = graph.nodes.match(f"clients", **{"Client ID": client_id}).first()        
             merchant_node = graph.nodes.match(f"merchants", **{"Merchant Name": merchant_name}).first()
-
+            # Se ci sono dei match, crea la relazione
             if client_node is not None and merchant_node is not None:
                 rel_client = Relationship(tx_node, "MADE_BY", client_node)
                 rel_merchant = Relationship(tx_node, "BOUGHT_FROM", merchant_node)

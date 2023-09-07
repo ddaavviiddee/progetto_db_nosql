@@ -107,7 +107,7 @@ for size in db_sizes:
     clients = generate_clients(int(max_records_per_entity / 2))
     merchants = generate_merchants(int(max_records_per_entity / 4))
     transactions = generate_transactions(int(max_records_per_entity), clients, merchants)
-    suspicious_transactions = generate_suspicious_transactions(int(max_records_per_entity / 4), clients, transactions)
+    suspicious_transactions = generate_suspicious_transactions(int(max_records_per_entity / 4), transactions)
     fraud_alerts = generate_fraud_alerts(int(max_records_per_entity / 5), suspicious_transactions)
 
     entities = {
